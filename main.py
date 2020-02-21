@@ -35,7 +35,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 @app.route("/")
 def hello_world():
-    return "hello world!"
+    return "hello world!",status.HTTP_200_OK
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -51,7 +51,7 @@ def callback():
     except InvalidSignatureError:
         abort(400)
 
-    return 'OK'
+    return 'OK',status.HTTP_200_OK
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
