@@ -1,6 +1,5 @@
 Flask
 uwsgi
 line-bot-sdk
-MySQLdb
 Flask-API
 mecab-python3
