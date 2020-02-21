@@ -2,3 +2,9 @@ Flask
 line-bot-sdk
 Flask-API
 mecab-python3
+requests
+redis
+pandas
+numpy
+scipy
+pickle

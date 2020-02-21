@@ -1,25 +1,34 @@
-from flask import Flask, request, abort
-import os, sys, json
+import os
+import sys
+import json
+import requests
+import redis
+import pandas as pd
+import numpy as np
+from scipy import spatial
+from gensim.models import word2vec
+import pickle
+import MeCab
 
+from flask import Flask, request, abort
+from flask_api import status
 from linebot import (
     LineBotApi, WebhookHandler
 )
 from linebot.exceptions import (
     InvalidSignatureError
 )
-from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+from linebot.models import ( # 使用するモデル(イベント, メッセージ, アクションなど)を列挙
+    FollowEvent, UnfollowEvent, MessageEvent, PostbackEvent,
+    TextMessage, TextSendMessage, TemplateSendMessage,
+    ButtonsTemplate, CarouselTemplate, CarouselColumn,
+    PostbackTemplateAction, LocationMessage
 )
 
 app = Flask(__name__)
 
-#環境変数取得
-ABS_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))
-with open(ABS_PATH+'/conf.json', 'r') as f:
-    CONF_DATA = json.load(f)
-
-CHANNEL_SECRET = CONF_DATA['CHANNEL_SECRET']
-CHANNEL_ACCESS_TOKEN = CONF_DATA['CHANNEL_ACCESS_TOKEN']
+CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
+CHANNEL_ACCESS_TOKEN = os.environ['CHANNEL_ACCESS_TOKEN']
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
