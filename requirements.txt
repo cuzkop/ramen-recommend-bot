@@ -7,4 +7,3 @@ redis
 pandas
 numpy
 scipy
-pickle
