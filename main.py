@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-import requests
+# import requests
 # import redis
 # import pandas as pd
 # import numpy as np
@@ -18,11 +18,8 @@ from linebot import (
 from linebot.exceptions import (
     InvalidSignatureError
 )
-from linebot.models import ( # 使用するモデル(イベント, メッセージ, アクションなど)を列挙
-    FollowEvent, UnfollowEvent, MessageEvent, PostbackEvent,
-    TextMessage, TextSendMessage, TemplateSendMessage,
-    ButtonsTemplate, CarouselTemplate, CarouselColumn,
-    PostbackTemplateAction, LocationMessage
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage,
 )
 
 app = Flask(__name__)
@@ -62,5 +59,5 @@ def handle_message(event):
         TextSendMessage(text=event.message.text))
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
