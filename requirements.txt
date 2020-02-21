@@ -1,5 +1,4 @@
 Flask
-uwsgi
 line-bot-sdk
 Flask-API
 mecab-python3
