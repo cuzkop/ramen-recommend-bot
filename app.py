@@ -1,5 +1,5 @@
 from flask import Flask, request, abort
-import os
+import os, sys, json
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -35,7 +35,6 @@ def callback():
 
     # get request body as text
     body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
 
     # handle webhook body
     try:
