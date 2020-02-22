@@ -114,18 +114,11 @@ def message_text(event):
         row = df[df.index == t[0]]
         name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
 
-        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, 'https://www.google.com/search?'+name))
+        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station, 'https://www.google.com/search?'+name))
 
-        # send_message(token, name)
-        # break
-        # print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
-
-    # print(type(carousel['contents']['contents']))
-    # print(len(carousel['contents']['contents']))
     dumps_carousel = json.dumps(carousel)
     loads_carousel = json.loads(dumps_carousel)
     container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
-    print(container_obj)
 
     send_json(token, container_obj)
 
@@ -158,18 +151,17 @@ def send_json(token, json):
         json
     )
 
-def create_bubble(name, score, original_score, uri):
+def create_bubble(name, score, original_score, station, uri):
     bubble = open("bubble.json","r")
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
     json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(int(original_score))
-    # json_bubble['footer']['contents'][0]['action']['uri'] = uri
+    json_bubble['body']['contents'][2]['contents'][1]['contents'][1]['text'] = station
+    json_bubble['footer']['contents'][0]['action']['uri'] = uri
     
-    # dumps_bubble = json.dumps(json_bubble)
     bubble.close()
     return json_bubble
-    # return json.loads(dumps_bubble)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
