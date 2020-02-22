@@ -93,9 +93,6 @@ def message_text(event):
         return
 
     vectors = avg_feature_vectors(nouns.split(' '), model)
-    if not vectors:
-        send_message(token, "エラーが発生しました。やり直して下さい。")
-        return
 
     result = {}
     for i, row in df.iterrows():
