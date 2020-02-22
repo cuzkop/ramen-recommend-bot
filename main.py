@@ -84,6 +84,23 @@ def handle_message(event):
         event.reply_token,
         TextSendMessage(text=event.message.text))
 
+@handler.add(MessageEvent, message=LocationMessage)
+def message_location(event):
+    lat = event.message.latitude
+    long = event.message.longitude
+    uid = event.source.user_id
+    station = get_station(lat, long)
+    token = event.reply_token
+
+    if station:
+        redis.hset(uid, 'lat', lat)
+        redis.hset(uid, 'long', long)
+        redis.expire(uid, 1800)
+        message = '{}駅周辺のラーメン屋をお探しします！\nあなたの今の気分を教えて下さい\n（例）あっさりした醬油ラーメン'.format(station)
+        send_message(token, message)
+    else:
+        send_message(token, "エラーが発生しました。やり直して下さい。")
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
