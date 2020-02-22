@@ -19,7 +19,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,LocationMessage,FlexSendMessage
+    MessageEvent, TextMessage, TextSendMessage,LocationMessage,FlexSendMessage,QuickReplyButton, LocationAction, QuickReply
 )
 
 app = Flask(__name__)
@@ -79,7 +79,7 @@ def message_text(event):
     if h:
         lat, long = h['lat'.encode()].decode(), h['long'.encode()].decode()
     else:
-        send_message(token, '位置情報を送信して下さい！')
+        quick_reply(token)
         return
 
     stations = get_stations(lat, long)
@@ -131,6 +131,14 @@ def send_message(token, message):
         token,
         TextSendMessage(text=message)
     )
+
+def quick_reply(token):
+    items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
+
+    messages = TextSendMessage(text="どの言語が好きですか？",
+                               quick_reply=QuickReply(items=items))
+
+    line_bot_api.reply_message(token, messages=messages)
 
 
 def get_station(lat, long):
