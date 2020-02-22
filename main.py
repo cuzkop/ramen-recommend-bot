@@ -157,7 +157,7 @@ def create_bubble(name, score, original_score, uri):
     
     dumps_bubble = json.dumps(json_bubble)
     
-    return json.loads(dumps_jaon)
+    return json.loads(dumps_bubble)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
