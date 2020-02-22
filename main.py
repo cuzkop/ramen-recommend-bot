@@ -1,14 +1,14 @@
 import os
 import sys
 import json
-# import requests
-# import redis
-# import pandas as pd
-# import numpy as np
-# from scipy import spatial
-# from gensim.models import word2vec
-# import pickle
-# import MeCab
+import requests
+import redis
+import pandas as pd
+import numpy as np
+from scipy import spatial
+from gensim.models import word2vec
+import pickle
+import MeCab
 
 from flask import Flask, request, abort
 from flask_api import status
