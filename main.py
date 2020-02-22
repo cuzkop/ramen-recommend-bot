@@ -19,20 +19,21 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,FlexSendMessage
+    MessageEvent, TextMessage, TextSendMessage,LocationMessage,FlexSendMessage
 )
 
 app = Flask(__name__)
 
 CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
 CHANNEL_ACCESS_TOKEN = os.environ['CHANNEL_ACCESS_TOKEN']
-# CHANNEL_SECRET = 'e49acc837b36e6028b221ea279be561b'
-# CHANNEL_ACCESS_TOKEN = 'FlXui90ppr7sbp6qsvXaqxYxgjAbzUiQzb8U/At5997vBgd+h1Eju7toVfvv6wfkPGkCV8Y/yYe+e9lKSTHC9mgVtVGALSy5Ae3GTwXsdU2W75DaZfbVFXdNK7rdagvV00FHhFbARUvqYbEWgNS9XgdB04t89/1O/w1cDnyilFU='
+STATION_API_URL = 'http://express.heartrails.com/api/json?method=getStations&x={}&y={}'
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-@app.route("/")
+redis = redis.Redis(host='localhost', port=6379, db=0)
+
+@app.route("/hello")
 def hello_world():
     return "hello world!",status.HTTP_200_OK
 
