@@ -120,11 +120,12 @@ def message_text(event):
         # break
         # print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
 
-    print(type(carousel['contents']['contents']))
-    print(len(carousel['contents']['contents']))
+    # print(type(carousel['contents']['contents']))
+    # print(len(carousel['contents']['contents']))
     dumps_carousel = json.dumps(carousel)
     loads_carousel = json.loads(dumps_carousel)
     container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
+    print(container_obj)
 
     send_message(token, container_obj)
 
