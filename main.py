@@ -101,13 +101,28 @@ def message_text(event):
 
     score_sorted = sorted(result.items(), key=lambda x:x[1], reverse=True)
 
-    for t in score_sorted[:10]:
+    carousel = {
+            "type": "flex",
+            "altText": "おすすめはこちら",
+            "contents": {
+                "type": "carousel",
+                "contents": []
+            }
+    }
+
+    for t in score_sorted[:3]:
         row = df[df.index == t[0]]
         name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
 
-        send_message(token, name)
-        break
+        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, 'https://www.google.com/search?'+name))
+
+        # send_message(token, name)
+        # break
         # print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
+
+    container_obj = FlexSendMessage.new_from_json_dict(carousel)
+
+    send_message(token, container_obj)
 
 @handler.add(MessageEvent, message=LocationMessage)
 def message_location(event):
@@ -131,6 +146,18 @@ def send_message(token, message):
         token,
         TextSendMessage(text=message)
     )
+
+def create_bubble(name, score, original_score, uri):
+    bubble = open("bubble.json","r")
+    json_bubble = json.load(bubble)
+    json_bubble['body']['contents'][0]['text'] = name
+    json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = score
+    json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = original_score
+    json_bubble['footer']['contents'][0]['action']['uri'] = uri
+    
+    dumps_bubble = json.dumps(json_bubble)
+    
+    return json.loads(dumps_jaon)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
