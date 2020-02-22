@@ -127,7 +127,7 @@ def message_text(event):
     container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
     print(container_obj)
 
-    send_message(token, container_obj)
+    send_json(token, container_obj)
 
 @handler.add(MessageEvent, message=LocationMessage)
 def message_location(event):
@@ -150,6 +150,12 @@ def send_message(token, message):
     line_bot_api.reply_message(
         token,
         TextSendMessage(text=message)
+    )
+
+def send_json(token, json):
+    line_bot_api.reply_message(
+        token,
+        json
     )
 
 def create_bubble(name, score, original_score, uri):
