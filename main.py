@@ -9,6 +9,7 @@ from scipy import spatial
 from gensim.models import word2vec
 import pickle
 import MeCab
+import urllib.parse
 
 from flask import Flask, request, abort
 from flask_api import status
@@ -114,7 +115,7 @@ def message_text(event):
         row = df[df.index == t[0]]
         name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
 
-        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station, 'https://www.google.com/search?'+name))
+        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station, name))
 
     dumps_carousel = json.dumps(carousel)
     loads_carousel = json.loads(dumps_carousel)
@@ -151,16 +152,17 @@ def send_json(token, json):
         json
     )
 
-def create_bubble(name, score, original_score, station, uri):
+def create_bubble(name, score, original_score, station, name):
     bubble = open("bubble.json","r")
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
     json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(int(original_score))
     json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
-    json_bubble['footer']['contents'][0]['action']['uri'] = uri
+    json_bubble['footer']['contents'][0]['action']['uri'] = urllib.parse.quote('https://www.google.com/search?q={}%20{}'.format(name, station))
     
     bubble.close()
+    print(urllib.parse.quote('https://www.google.com/search?q={}%20{}'.format(name, station)))
     return json_bubble
 
 def quick_reply(token):
