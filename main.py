@@ -83,6 +83,7 @@ def message_text(event):
         return
 
     stations = get_stations(lat, long)
+    print(stations)
     if  not stations:
         send_message(token, "エラーが発生しました。やり直して下さい。")
         return
@@ -116,7 +117,6 @@ def message_location(event):
     uid = event.source.user_id
     station = get_station(lat, long)
     token = event.reply_token
-    print(stations)
 
     if station:
         redis.hset(uid, 'lat', lat)
