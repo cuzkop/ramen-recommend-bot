@@ -31,7 +31,15 @@ STATION_API_URL = 'http://express.heartrails.com/api/json?method=getStations&x={
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-redis = redis.Redis(host=os.environ['REDIS_URL'], port=26739, db=0)
+# redis = redis.Redis(host=os.environ['REDIS_URL'], port=26739, db=0)
+
+REDIS_URL = os.environ['REDIS_URL'] if os.environ.get(
+    'REDIS_URL') != None else 'localhost:6379'
+
+# コネクションプールから１つ取得
+pool = redis.ConnectionPool.from_url(REDIS_URL, db=0)
+# コネクションを利用
+redis = redis.StrictRedis(connection_pool=pool)
 
 mecab = MeCab.Tagger ('-Owakati')
 
