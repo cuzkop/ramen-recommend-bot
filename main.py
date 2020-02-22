@@ -116,6 +116,7 @@ def message_location(event):
     uid = event.source.user_id
     station = get_station(lat, long)
     token = event.reply_token
+    print(stations)
 
     if station:
         redis.hset(uid, 'lat', lat)
