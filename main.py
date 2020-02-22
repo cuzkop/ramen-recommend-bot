@@ -120,7 +120,9 @@ def message_text(event):
         # break
         # print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
 
-    container_obj = FlexSendMessage.new_from_json_dict(carousel)
+    dumps_carousel = json.dumps(carousel)
+    loads_carousel = json.loads(dumps_carousel)
+    container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
 
     send_message(token, container_obj)
 
@@ -151,14 +153,14 @@ def create_bubble(name, score, original_score, uri):
     bubble = open("bubble.json","r")
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
-    # json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = score
-    # json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = original_score
-    # json_bubble['footer']['contents'][0]['action']['uri'] = uri
+    json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = score
+    json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = original_score
+    json_bubble['footer']['contents'][0]['action']['uri'] = uri
     
-    dumps_bubble = json.dumps(json_bubble)
+    # dumps_bubble = json.dumps(json_bubble)
     bubble.close()
-    
-    return json.loads(dumps_bubble)
+    return json_bubble
+    # return json.loads(dumps_bubble)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
