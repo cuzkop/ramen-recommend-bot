@@ -115,7 +115,7 @@ def message_text(event):
         row = df[df.index == t[0]]
         name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
 
-        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station, name))
+        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station))
 
     dumps_carousel = json.dumps(carousel)
     loads_carousel = json.loads(dumps_carousel)
@@ -152,7 +152,7 @@ def send_json(token, json):
         json
     )
 
-def create_bubble(name, score, original_score, station, name):
+def create_bubble(name, score, original_score, station):
     bubble = open("bubble.json","r")
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
