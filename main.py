@@ -157,7 +157,7 @@ def create_bubble(name, score, original_score, station, uri):
     json_bubble['body']['contents'][0]['text'] = name
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
     json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(int(original_score))
-    json_bubble['body']['contents'][2]['contents'][1]['contents'][1]['text'] = station
+    json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
     json_bubble['footer']['contents'][0]['action']['uri'] = uri
     
     bubble.close()
