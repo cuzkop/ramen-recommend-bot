@@ -7,3 +7,4 @@ redis
 pandas
 numpy
 scipy
+gensim
