@@ -17,7 +17,7 @@ from linebot import (
     LineBotApi, WebhookHandler
 )
 from linebot.exceptions import (
-    InvalidSignatureError
+    InvalidSignatureError, LineBotApiError
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,LocationMessage,FlexSendMessage,QuickReplyButton, LocationAction, QuickReply
@@ -83,13 +83,19 @@ def message_text(event):
         return
 
     stations = get_stations(lat, long)
-    print(stations)
-    if  not stations:
+    if not stations:
         send_message(token, "エラーが発生しました。やり直して下さい。")
         return
 
     nouns = get_noun(event.message.text)
+    if not nouns:
+        send_message(token, "エラーが発生しました。やり直して下さい。")
+        return
+
     vectors = avg_feature_vectors(nouns.split(' '), model)
+    if not vectors:
+        send_message(token, "エラーが発生しました。やり直して下さい。")
+        return
 
     result = {}
     for i, row in df.iterrows():
@@ -111,17 +117,24 @@ def message_text(event):
             }
     }
 
-    for t in score_sorted[:3]:
-        row = df[df.index == t[0]]
-        name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
+    try:
+        for t in score_sorted[:3]:
+            row = df[df.index == t[0]]
+            name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
 
-        carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station))
+            carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station))
 
-    dumps_carousel = json.dumps(carousel)
-    loads_carousel = json.loads(dumps_carousel)
-    container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
+        dumps_carousel = json.dumps(carousel)
+        loads_carousel = json.loads(dumps_carousel)
+        container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
 
-    send_json(token, container_obj)
+        send_json(token, container_obj)
+    except ValueError:
+        send_message(token, "キーワードが短すぎる可能性があります。やり直して下さい")
+        return
+    except LineBotApiError:
+        send_message(token, "エラーが発生しました。やり直して下さい。")
+        return
 
 @handler.add(MessageEvent, message=LocationMessage)
 def message_location(event):
@@ -160,7 +173,6 @@ def create_bubble(name, score, original_score, station):
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
     json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(int(original_score))
     json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
-    # json_bubble['footer']['contents'][0]['action']['uri'] = urllib.parse.quote('https://www.google.com/search?q={}%20{}'.format(name, station))
     json_bubble['footer']['contents'][0]['action']['uri'] = create_uri(name, station)
     
     bubble.close()
@@ -168,7 +180,6 @@ def create_bubble(name, score, original_score, station):
 
 def create_uri(name, station):
     param = urllib.parse.quote('{} {}'.format(name, station))
-    print(param)
     return 'https://www.google.com/search?q={}'.format(param)
 
 def quick_reply(token):
