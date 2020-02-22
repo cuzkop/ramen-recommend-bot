@@ -159,6 +159,7 @@ def create_bubble(name, score, original_score, uri):
     
     # dumps_bubble = json.dumps(json_bubble)
     bubble.close()
+    print(json_bubble)
     return json_bubble
     # return json.loads(dumps_bubble)
 
