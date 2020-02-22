@@ -154,16 +154,22 @@ def send_json(token, json):
 
 def create_bubble(name, score, original_score, station):
     bubble = open("bubble.json","r")
+
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
     json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(int(original_score))
     json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
-    json_bubble['footer']['contents'][0]['action']['uri'] = urllib.parse.quote('https://www.google.com/search?q={}%20{}'.format(name, station))
+    # json_bubble['footer']['contents'][0]['action']['uri'] = urllib.parse.quote('https://www.google.com/search?q={}%20{}'.format(name, station))
+    json_bubble['footer']['contents'][0]['action']['uri'] = create_uri(name, station)
     
     bubble.close()
-    print(urllib.parse.quote('https://www.google.com/search?q={}%20{}'.format(name, station)))
     return json_bubble
+
+def create_uri(name, station):
+    param = urllib.parse.quote('{} {}'.format(name, station))
+    print(param)
+    return 'https://www.google.com/search?q={}'.format(param)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
