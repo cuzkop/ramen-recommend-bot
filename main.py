@@ -120,6 +120,8 @@ def message_text(event):
         # break
         # print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
 
+    print(type(carousel['contents']['contents']))
+    print(len(carousel['contents']['contents']))
     dumps_carousel = json.dumps(carousel)
     loads_carousel = json.loads(dumps_carousel)
     container_obj = FlexSendMessage.new_from_json_dict(loads_carousel)
@@ -159,7 +161,6 @@ def create_bubble(name, score, original_score, uri):
     
     # dumps_bubble = json.dumps(json_bubble)
     bubble.close()
-    print(json_bubble)
     return json_bubble
     # return json.loads(dumps_bubble)
 
