@@ -163,7 +163,7 @@ def create_bubble(name, score, original_score, uri):
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = score
-    json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = original_score
+    json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(int(original_score))
     json_bubble['footer']['contents'][0]['action']['uri'] = uri
     
     # dumps_bubble = json.dumps(json_bubble)
