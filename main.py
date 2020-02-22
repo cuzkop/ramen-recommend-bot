@@ -31,7 +31,6 @@ STATION_API_URL = 'http://express.heartrails.com/api/json?method=getStations&x={
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-# redis = redis.Redis(host=os.environ['REDIS_URL'], port=26739, db=0)
 
 REDIS_URL = os.environ['REDIS_URL'] if os.environ.get(
     'REDIS_URL') != None else 'localhost:6379'
@@ -108,7 +107,7 @@ def message_text(event):
 
         send_message(token, name)
         break
-        print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
+        # print('店名:{}, 食べログスコア:{}, 独自スコア:{:.2f}, 最寄駅:{}'.format(name,score,t[1]*100,station))
 
 @handler.add(MessageEvent, message=LocationMessage)
 def message_location(event):
@@ -135,9 +134,9 @@ def send_message(token, message):
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
+    text = '位置情報を送信して下さい！\n最寄駅とその前後の駅を設定します。\n位置情報を送り直すことで再設定することができます！'
 
-    messages = TextSendMessage(text="どの言語が好きですか？",
-                               quick_reply=QuickReply(items=items))
+    messages = TextSendMessage(text=text, quick_reply=QuickReply(items=items))
 
     line_bot_api.reply_message(token, messages=messages)
 
