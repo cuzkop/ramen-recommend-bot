@@ -101,7 +101,7 @@ def message_text(event):
             continue
 
         score = sentence_similarity(vectors, skip_list[i])
-        result[i] = score * row.score
+        result[i] = score*10*1.2 + row.score
 
     score_sorted = sorted(result.items(), key=lambda x:x[1], reverse=True)
 
@@ -119,7 +119,7 @@ def message_text(event):
             row = df[df.index == t[0]]
             name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
 
-            carousel['contents']['contents'].append(create_bubble(name, score, t[1]*100, station))
+            carousel['contents']['contents'].append(create_bubble(name, score, t[1], station))
 
         dumps_carousel = json.dumps(carousel)
         loads_carousel = json.loads(dumps_carousel)
