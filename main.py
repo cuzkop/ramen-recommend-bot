@@ -101,7 +101,7 @@ def message_text(event):
             continue
 
         score = sentence_similarity(vectors, skip_list[i])
-        result[i] = score*10*1.2 + row.score
+        result[i] = score*10*1.3 + row.score
         print(score*10*1.1, score*10*1.2, score*10*1.3, score)
 
     score_sorted = sorted(result.items(), key=lambda x:x[1], reverse=True)
