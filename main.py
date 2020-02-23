@@ -102,6 +102,7 @@ def message_text(event):
 
         score = sentence_similarity(vectors, skip_list[i])
         result[i] = score*10*1.2 + row.score
+        print(score*10*1.1, score*10*1.2, score*10*1.3, score)
 
     score_sorted = sorted(result.items(), key=lambda x:x[1], reverse=True)
 
@@ -168,7 +169,7 @@ def create_bubble(name, score, original_score, station):
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
-    json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = str(float(original_score))
+    json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = '{0:.2f}'.format(float(original_score))
     json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
     json_bubble['footer']['contents'][0]['action']['uri'] = create_uri(name, station)
     
