@@ -97,7 +97,17 @@
         "height": "sm",
         "action": {
           "type": "uri",
-          "label": "Googleで検索する",
+          "label": "店舗の情報を見る",
+          "uri": "https://www.google.com"
+        }
+      },
+      {
+        "type": "button",
+        "style": "primary",
+        "height": "sm",
+        "action": {
+          "type": "uri",
+          "label": "地図を見る",
           "uri": "https://www.google.com"
         }
       },

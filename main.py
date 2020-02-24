@@ -43,17 +43,17 @@ redis = redis.StrictRedis(connection_pool=pool)
 
 mecab = MeCab.Tagger ('-Owakati')
 
-f = open("./pickle/skip_list.txt","rb")
+f = open("./pickle/skip_list_20200223.txt","rb")
 skip_list = pickle.load(f)
 f.close()
 
 vector_size = 250
 
-model = word2vec.Word2Vec.load('./models/skip_w2v.model')
+model = word2vec.Word2Vec.load('./models/skip_w2v_20200223.model')
 
 
-df = pd.read_csv('./csv/review_wakati.csv')
-df = df.drop(['store_id'],axis=1)
+df = pd.read_csv('./csv/review_wakati_20200223.csv')
+df = df.drop(['store_id', 'Unnamed: 0.1'],axis=1)
 df = df.rename(columns={'Unnamed: 0':'store_id'}).set_index('store_id')
 
 @app.route("/hello")
@@ -118,9 +118,9 @@ def message_text(event):
     try:
         for t in score_sorted[:3]:
             row = df[df.index == t[0]]
-            name, score, station = row.store_name.values[0], row.score.values[0], row.station.values[0]
+            name, score, station, uri, map_uri = row.store_name.values[0], row.score.values[0], row.station.values[0], row.url.values[0], row.map_url.values[0]
 
-            carousel['contents']['contents'].append(create_bubble(name, score, t[1], station))
+            carousel['contents']['contents'].append(create_bubble(name, score, t[1], station, uri, map_uri))
 
         dumps_carousel = json.dumps(carousel)
         loads_carousel = json.loads(dumps_carousel)
@@ -163,7 +163,7 @@ def send_json(token, json):
         json
     )
 
-def create_bubble(name, score, original_score, station):
+def create_bubble(name, score, original_score, station, uri, map_uri):
     bubble = open("bubble.json","r")
 
     json_bubble = json.load(bubble)
@@ -171,14 +171,15 @@ def create_bubble(name, score, original_score, station):
     json_bubble['body']['contents'][1]['contents'][0]['contents'][1]['text'] = str(score)
     json_bubble['body']['contents'][1]['contents'][1]['contents'][1]['text'] = '{0:.2f}'.format(float(original_score))
     json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
-    json_bubble['footer']['contents'][0]['action']['uri'] = create_uri(name, station)
+    json_bubble['footer']['contents'][0]['action']['uri'] = uri
+    json_bubble['footer']['contents'][1]['action']['uri'] = map_uri
     
     bubble.close()
     return json_bubble
 
-def create_uri(name, station):
-    param = urllib.parse.quote('{} {}'.format(name, station))
-    return 'https://www.google.com/search?q={}'.format(param)
+# def create_uri(name, station):
+#     param = urllib.parse.quote('{} {}'.format(name, station))
+#     return 'https://www.google.com/search?q={}'.format(param)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
