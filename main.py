@@ -1,27 +1,22 @@
-import os
-import sys
+import datetime
 import json
-import requests
-import redis
-import pandas as pd
-import numpy as np
-from scipy import spatial
-from gensim.models import word2vec
+import os
 import pickle
-import MeCab
-import urllib.parse
 
-from flask import Flask, request, abort
+import MeCab
+import numpy as np
+import pandas as pd
+import redis
+import requests
+from flask import Flask, abort, request
 from flask_api import status
-from linebot import (
-    LineBotApi, WebhookHandler
-)
-from linebot.exceptions import (
-    InvalidSignatureError, LineBotApiError
-)
-from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,LocationMessage,FlexSendMessage,QuickReplyButton, LocationAction, QuickReply
-)
+from gensim.models import word2vec
+from linebot import LineBotApi, WebhookHandler
+from linebot.exceptions import InvalidSignatureError, LineBotApiError
+from linebot.models import (FlexSendMessage, LocationAction, LocationMessage,
+                            MessageEvent, QuickReply, QuickReplyButton,
+                            TextMessage, TextSendMessage)
+from scipy import spatial
 
 app = Flask(__name__)
 
@@ -33,17 +28,16 @@ line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
 
-REDIS_URL = os.environ['REDIS_URL'] if os.environ.get(
-    'REDIS_URL') != None else 'localhost:6379'
+REDIS_URL = os.environ['REDIS_URL'] if os.environ.get('REDIS_URL') != None else 'localhost:6379'
 
 # コネクションプールから１つ取得
 pool = redis.ConnectionPool.from_url(REDIS_URL, db=0)
 # コネクションを利用
 redis = redis.StrictRedis(connection_pool=pool)
 
-mecab = MeCab.Tagger ('-Owakati')
+mecab = MeCab.Tagger('-Owakati')
 
-f = open("./pickle/skip_list_20200223.txt","rb")
+f = open("./pickle/skip_list_20200223.txt", "rb")
 skip_list = pickle.load(f)
 f.close()
 
@@ -51,14 +45,15 @@ vector_size = 250
 
 model = word2vec.Word2Vec.load('./models/skip_w2v_20200223.model')
 
-
 df = pd.read_csv('./csv/review_wakati_20200223.csv')
-df = df.drop(['store_id', 'Unnamed: 0.1'],axis=1)
-df = df.rename(columns={'Unnamed: 0':'store_id'}).set_index('store_id')
+df = df.drop(['store_id', 'Unnamed: 0.1'], axis=1)
+df = df.rename(columns={'Unnamed: 0': 'store_id'}).set_index('store_id')
+
 
 @app.route("/hello")
 def hello_world():
-    return "hello world!",status.HTTP_200_OK
+    return "hello world!", status.HTTP_200_OK
+
 
 @app.route('/', methods=['POST'])
 def index():
@@ -68,7 +63,8 @@ def index():
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-    return '',status.HTTP_200_OK
+    return '', status.HTTP_200_OK
+
 
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
@@ -88,10 +84,18 @@ def message_text(event):
         return
 
     nouns = get_noun(event.message.text)
-    print(nouns)
     if not nouns:
         send_message(token, "エラーが発生しました。やり直して下さい。")
         return
+
+    dt_now = datetime.datetime.now()
+    print(
+        'uid:{}'.format(uid),
+        'station:{}'.format(stations[0]),
+        'text:{}'.format(event.message.text),
+        'time:{}'.format(dt_now.strftime('%Y年%m月%d日 %H:%M:%S')),
+        sep='\n'
+        )
 
     vectors = avg_feature_vectors(nouns.split(' '), model)
 
@@ -103,9 +107,8 @@ def message_text(event):
 
         score = sentence_similarity(vectors, skip_list[i])
         result[i] = score*10*1.3 + row.score
-        print(score*10*1.1, score*10*1.2, score*10*1.3, score)
 
-    score_sorted = sorted(result.items(), key=lambda x:x[1], reverse=True)
+    score_sorted = sorted(result.items(), key=lambda x: x[1], reverse=True)
 
     carousel = {
             "type": "flex",
@@ -135,6 +138,7 @@ def message_text(event):
         send_message(token, "エラーが発生しました。やり直して下さい。")
         return
 
+
 @handler.add(MessageEvent, message=LocationMessage)
 def message_location(event):
     lat = event.message.latitude
@@ -152,11 +156,13 @@ def message_location(event):
     else:
         send_message(token, "エラーが発生しました。やり直して下さい。")
 
+
 def send_message(token, message):
     line_bot_api.reply_message(
         token,
         TextSendMessage(text=message)
     )
+
 
 def send_json(token, json):
     line_bot_api.reply_message(
@@ -164,8 +170,9 @@ def send_json(token, json):
         json
     )
 
+
 def create_bubble(name, score, original_score, station, uri, map_uri):
-    bubble = open("bubble.json","r")
+    bubble = open("bubble.json", "r")
 
     json_bubble = json.load(bubble)
     json_bubble['body']['contents'][0]['text'] = name
@@ -174,13 +181,10 @@ def create_bubble(name, score, original_score, station, uri, map_uri):
     json_bubble['body']['contents'][1]['contents'][2]['contents'][1]['text'] = station
     json_bubble['footer']['contents'][0]['action']['uri'] = uri
     json_bubble['footer']['contents'][1]['action']['uri'] = map_uri
-    
+
     bubble.close()
     return json_bubble
 
-# def create_uri(name, station):
-#     param = urllib.parse.quote('{} {}'.format(name, station))
-#     return 'https://www.google.com/search?q={}'.format(param)
 
 def quick_reply(token):
     items = [QuickReplyButton(action=LocationAction(label='位置情報を送信する', text="位置情報を送信する"))]
@@ -198,6 +202,7 @@ def get_station(lat, long):
     else:
         return ''
 
+
 def get_stations(lat, long):
     stations = http_request(STATION_API_URL.format(long, lat))
     if stations:
@@ -209,14 +214,16 @@ def get_stations(lat, long):
     else:
         return ''
 
+
 def http_request(url):
     res = requests.get(url)
-    
+
     if res.status_code != status.HTTP_200_OK:
         return ''
 
     result_json = res.json()
     return result_json
+
 
 def prepro_station(station):
     if '（東武・都営・メトロ）' in station:
@@ -230,8 +237,10 @@ def prepro_station(station):
 
     return station
 
+
 def sentence_similarity(vec1, vec2):
     return 1 - spatial.distance.cosine(vec1, vec2)
+
 
 def avg_feature_vectors(words, model):
     feature_vec = np.zeros(vector_size, dtype='float32')
@@ -243,6 +252,7 @@ def avg_feature_vectors(words, model):
 
     return feature_vec
 
+
 def get_noun(text):
     mecab.parse('')
     node = mecab.parseToNode(text)
@@ -250,7 +260,7 @@ def get_noun(text):
 
     while node:
         word = node.surface
-        pos,pos2 = node.feature.split(",")[0],node.feature.split(",")[1]
+        pos, pos2 = node.feature.split(",")[0], node.feature.split(",")[1]
         if '0' in word or '1' in word or '2' in word or '3' in word or '4' in word or '5' in word or '6' in word or '7' in word or '8' in word or '9' in word:
             node = node.next
             continue
@@ -258,12 +268,13 @@ def get_noun(text):
         if pos2 == '数':
             node = node.next
             continue
-            
+
         if (pos == '名詞' and pos2 != '数') or (pos == '形容詞') or (pos == '副詞'):
             result.append(word)
         node = node.next
 
     return ' '.join(result)
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5001))
