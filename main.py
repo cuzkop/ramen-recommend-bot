@@ -88,6 +88,7 @@ def message_text(event):
         return
 
     nouns = get_noun(event.message.text)
+    print(nouns)
     if not nouns:
         send_message(token, "エラーが発生しました。やり直して下さい。")
         return
